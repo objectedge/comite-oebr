@@ -20,6 +20,8 @@ export default async function CandidateFormControl({
         gustavo.farias@objectedge.com
       </p>
     </div>
+  ) : END_OF_ELECTION < new Date() ? (
+    <RoundResults round={process.env.ROUND || "1"} />
   ) : (await alreadyVoted()) ? (
     <div className="text-center">
       <p className="text-xl my-5">Você já votou.</p>
@@ -28,8 +30,6 @@ export default async function CandidateFormControl({
         <b>{Intl.DateTimeFormat("pt-BR").format(END_OF_ELECTION)}</b>
       </p>
     </div>
-  ) : END_OF_ELECTION < new Date() ? (
-    <RoundResults round={process.env.ROUND || "1"} />
   ) : (
     <CandidateVoteForm candidates={candidates} />
   );

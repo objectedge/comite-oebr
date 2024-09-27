@@ -5,7 +5,7 @@ import END_OF_ELECTION from "@/end-of-election";
 import { default as fs, voteesCollection, votesCollection } from "@/firestore";
 import { CURRENT_ROUND } from "@/round";
 import { unstable_cache as cache } from "next/cache";
-import { getCandidates } from "./get-candidates";
+import getCandidates from "@/actions/get-candidates";
 
 /**
  * Check if user already voted
@@ -46,8 +46,11 @@ export async function vote(_: VoteFormState, formData: FormData) {
   // with the id being the user's email
   if (await alreadyVoted()) return { error: "User already voted" };
 
-  // only accept three votes
-  const userVotes = formData.getAll("vote[]");
+  // only accept three distinct and valid votes
+  const candidates = await getCandidates();
+  const userVotes = Array.from(
+    new Set((formData.getAll("vote[]") as string[]).map((v) => v.toLowerCase())) // get unique votes
+  ).filter((v) => candidates.some((c) => c.id === v)); // filter out invalid votes
   if (userVotes.length !== 3) return { error: "Invalid amount of votes" };
 
   // register that the user voted in the votees collection
