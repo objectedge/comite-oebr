@@ -5,7 +5,7 @@ import END_OF_ELECTION from "@/end-of-election";
 import { default as fs, voteesCollection, votesCollection } from "@/firestore";
 import { CURRENT_ROUND } from "@/round";
 import { unstable_cache as cache } from "next/cache";
-import getCandidates from "@/actions/get-candidates";
+import { roundCandidates } from "@/actions/get-candidates";
 
 /**
  * Check if user already voted
@@ -47,7 +47,7 @@ export async function vote(_: VoteFormState, formData: FormData) {
   if (await alreadyVoted()) return { error: "User already voted" };
 
   // only accept three distinct and valid votes
-  const candidates = await getCandidates();
+  const candidates = await roundCandidates();
   const userVotes = Array.from(
     new Set((formData.getAll("vote[]") as string[]).map((v) => v.toLowerCase())) // get unique votes
   ).filter((v) => candidates.some((c) => c.id === v)); // filter out invalid votes
@@ -101,7 +101,7 @@ export const getVotes = cache(getAllVotes, ["votes"]);
  * Get the final results for the current round
  */
 export async function getResults(round: string) {
-  const candidates = await getCandidates();
+  const candidates = await roundCandidates(round);
   return Object.entries(
     (await getVotes(round))
       .filter((v) => v.round === round)

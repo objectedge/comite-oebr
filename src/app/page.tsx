@@ -1,7 +1,8 @@
 import CandidateFormControl from "@/components/CandidateFormControl";
-import getCandidates from "@/actions/get-candidates";
+import { roundCandidates } from "@/actions/get-candidates";
+import { CURRENT_ROUND } from "@/round";
 
 export default async function Home() {
-  const candidates = await getCandidates();
+  const candidates = await roundCandidates(CURRENT_ROUND);
   return <CandidateFormControl candidates={candidates} />;
 }
